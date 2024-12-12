@@ -1,6 +1,6 @@
 <?php
 
-use Moox\Builder\Tests\TestCase;
+use Moox\Tag\Tests\TestCase;
 use Workbench\App\Models\User;
 
 /*

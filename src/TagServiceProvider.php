@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Moox\Builder;
+namespace Moox\Tag;
 
-use Moox\Builder\Commands\InstallCommand;
+use Moox\Tag\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class BuilderServiceProvider extends PackageServiceProvider
+class TagServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('builder')
+            ->name('tag')
             ->hasConfigFile()
             ->hasViews()
             ->hasTranslations()
-            ->hasMigrations(['create_items_table'])
+            ->hasMigrations(['create_tags_table', 'create_taggables_table'])
             ->hasCommand(InstallCommand::class);
     }
 }

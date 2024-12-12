@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Moox\Builder;
+namespace Moox\Tag;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Concerns\EvaluatesClosures;
-use Moox\Builder\Resources\ItemResource;
+use Moox\Tag\Resources\TagResource;
 
-class ItemPlugin implements Plugin
+class TagPlugin implements Plugin
 {
     use EvaluatesClosures;
 
     public function getId(): string
     {
-        return 'builder';
+        return 'tag';
     }
 
     public function register(Panel $panel): void
     {
         $panel->resources([
-            ItemResource::class,
+            TagResource::class,
         ]);
     }
 

@@ -1,20 +1,16 @@
-![Moox Builder](https://github.com/mooxphp/moox/raw/main/art/banner/builder.jpg)
+![Moox Tag](https://github.com/mooxphp/moox/raw/main/art/banner/tag.jpg)
 
-# Moox Builder
+# Moox Tag
 
-<!--shortdesc-->
-
-This template is used for generating Moox packages. Press the Template-Button in GitHub, create your own Laravel and Filament package.
-
-<!--/shortdesc-->
+A simple Tag system for Filament.
 
 ## Quick Installation
 
 These two commmands are all you need to install the package:
 
 ```bash
-composer require moox/builder
-php artisan mooxbuilder:install
+composer require moox/tag
+php artisan mooxtag:install
 ```
 
 Curious what the install command does? See manual installation below.
@@ -23,31 +19,31 @@ Curious what the install command does? See manual installation below.
 
 <!--whatdoes-->
 
-This Laravel Package Template can be used to create a package including a powerful Filament resource called Item.
+This Laravel Package Template can be used to create a package including a powerful Filament resource called Tag.
 
-![Moox Builder Item](https://github.com/mooxphp/moox/raw/main/art/screenshot/builder-item.jpg)
+![Moox Tag Tag](https://github.com/mooxphp/moox/raw/main/art/screenshot/tag-item.jpg)
 
 Name and table for the Resource can be changed while building your package.
 
 ### Using the Template
 
-1. Go to https://github.com/mooxphp/builder
+1. Go to https://github.com/mooxphp/tag
 2. Press the `Use this template` button
 3. Create a new repository based on the template
 4. Clone the repository locally
 5. Run `php build.php`in the repo's directory and follow the steps
-   - Author Name (Default: Moox Developer): Your Name
-   - Author Email (Default: dev@moox.org): your@mail.com
-   - Package Name (Default: Blog Package): Your Package
-   - Package Description (Default: This is my package Blog Package)
-   - Package Entity (Default: Item): e.g. Post
-   - Tablename (Default: items): e.g. posts
+    - Author Name (Default: Moox Developer): Your Name
+    - Author Email (Default: dev@moox.org): your@mail.com
+    - Package Name (Default: Blog Package): Your Package
+    - Package Description (Default: This is my package Blog Package)
+    - Package Entity (Default: Tag): e.g. Post
+    - Tablename (Default: tags): e.g. posts
 
 After building the package, you can push the changes to GitHub and create an installable package on Packagist.org. Don't forget to adjust the README to your composer namespace.
 
 ### Config
 
-After that the Resource is highly configurable. 
+After that the Resource is highly configurable.
 
 #### Tabs and Translation
 
@@ -146,17 +142,17 @@ Moox Core features like Dynamic Tabs and Translatable Config. See the config fil
 
 All options for Tabs are explained in [Moox Core docs](https://github.com/mooxphp/core/blob/main/README.md#dynamic-tabs).
 
-#### Item Types
+#### Tag Types
 
 The item also support 'item' types, means you are able to configure selectable types for your Entity. By default, we provide "Post" and "Page" as example. If you don't want to use types, just empty the array and the field and column become invisible.
 
 ```php
     /*
     |--------------------------------------------------------------------------
-    | Item Types
+    | Tag Types
     |--------------------------------------------------------------------------
     |
-    | This array contains the types of items entities. You can delete
+    | This array contains the types of tags entities. You can delete
     | the types you don't need and add new ones. If you don't need
     | types, you can empty this array like this: 'types' => [],
     |
@@ -184,34 +180,34 @@ You can configure the user model used for displaying Authors. By default it is t
     |
     */
 
-    'author_model' => \App\Models\User::class,
+    'user_model' => \App\Models\User::class,
 ```
 
 You may probably use Moox User
 
 ```php
-    'author_model' => \Moox\User\Models\User::class,
+    'user_model' => \Moox\User\Models\User::class,
 ```
 
 or Moox Press User instead:
 
 ```php
-    'author_model' => \Moox\Press\Models\WpUser::class,
+    'user_model' => \Moox\Press\Models\WpUser::class,
 ```
 
 <!--/whatdoes-->
 
 ## Manual Installation
 
-Instead of using the install-command `php artisan mooxbuilder:install` you are able to install this package manually step by step:
+Instead of using the install-command `php artisan mooxtag:install` you are able to install this package manually step by step:
 
 ```bash
 // Publish and run the migrations:
-php artisan vendor:publish --tag="builder-migrations"
+php artisan vendor:publish --tag="tag-migrations"
 php artisan migrate
 
 // Publish the config file with:
-php artisan vendor:publish --tag="builder-config"
+php artisan vendor:publish --tag="tag-config"
 ```
 
 ## Changelog

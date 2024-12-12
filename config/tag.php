@@ -27,7 +27,7 @@ return [
     */
 
     'resources' => [
-        'builder' => [
+        'tag' => [
 
             /*
             |--------------------------------------------------------------------------
@@ -38,8 +38,8 @@ return [
             |
             */
 
-            'single' => 'trans//builder::builder.item',
-            'plural' => 'trans//builder::builder.items',
+            'single' => 'trans//tag::translations.tag',
+            'plural' => 'trans//tag::translations.tags',
 
             /*
             |--------------------------------------------------------------------------
@@ -57,58 +57,6 @@ return [
                     'label' => 'trans//core::core.all',
                     'icon' => 'gmdi-filter-list',
                     'query' => [
-                        [
-                            'field' => 'deleted_at',
-                            'operator' => '=',
-                            'value' => null,
-                        ],
-                    ],
-                ],
-                'published' => [
-                    'label' => 'trans//core::core.published',
-                    'icon' => 'gmdi-check-circle',
-                    'query' => [
-                        [
-                            'field' => 'publish_at',
-                            'operator' => '<=',
-                            'value' => function () {
-                                return now();
-                            },
-                        ],
-                        [
-                            'field' => 'deleted_at',
-                            'operator' => '=',
-                            'value' => null,
-                        ],
-                    ],
-                ],
-                'scheduled' => [
-                    'label' => 'trans//core::core.scheduled',
-                    'icon' => 'gmdi-schedule',
-                    'query' => [
-                        [
-                            'field' => 'publish_at',
-                            'operator' => '>',
-                            'value' => function () {
-                                return now();
-                            },
-                        ],
-                        [
-                            'field' => 'deleted_at',
-                            'operator' => '=',
-                            'value' => null,
-                        ],
-                    ],
-                ],
-                'draft' => [
-                    'label' => 'trans//core::core.draft',
-                    'icon' => 'gmdi-text-snippet',
-                    'query' => [
-                        [
-                            'field' => 'publish_at',
-                            'operator' => '=',
-                            'value' => null,
-                        ],
                         [
                             'field' => 'deleted_at',
                             'operator' => '=',
@@ -142,11 +90,11 @@ return [
     |
     */
 
-    'navigation_group' => 'trans//core::core.tools',
+    'navigation_group' => 'trans//core::core.cms',
 
     /*
     |--------------------------------------------------------------------------
-    | Builder - Navigation Sort
+    | Tag - Navigation Sort
     |--------------------------------------------------------------------------
     |
     | This value is the sort order of the navigation item in the
@@ -155,14 +103,14 @@ return [
     |
     */
 
-    'navigation_sort' => 9990,
+    'navigation_sort' => 1000,
 
     /*
     |--------------------------------------------------------------------------
-    | Item Types
+    | Tag Types
     |--------------------------------------------------------------------------
     |
-    | This array contains the types of items entities. You can delete
+    | This array contains the types of tags entities. You can delete
     | the types you don't need and add new ones. If you don't need
     | types, you can empty this array like this: 'types' => [],
     |
@@ -184,7 +132,7 @@ return [
     |
     */
 
-    'author_model' => \App\Models\User::class,
+    'user_model' => \App\Models\User::class,
 
     /*
     |--------------------------------------------------------------------------

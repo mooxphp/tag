@@ -1,13 +1,13 @@
 <?php
 
-namespace Moox\Builder\Database\Factories;
+namespace Moox\Tag\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Moox\Builder\Models\Item;
+use Moox\Tag\Models\Tag;
 
-class ItemFactory extends Factory
+class TagFactory extends Factory
 {
-    protected $model = Item::class;
+    protected $model = Tag::class;
 
     /**
      * Define the model's default state.
