@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace Moox\Tag\Resources;
 
-use Camya\Filament\Forms\Components\TitleWithSlugInput;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ColorColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Moox\Core\Traits\Tabs\TabsInResource;
+use Moox\Media\Forms\Components\MediaPicker;
+use Moox\Media\Tables\Columns\CustomImageColumn;
 use Moox\Tag\Models\Tag;
 use Moox\Tag\Resources\TagResource\Pages\CreateTag;
 use Moox\Tag\Resources\TagResource\Pages\EditTag;
@@ -64,14 +65,77 @@ class TagResource extends Resource
                         ->schema([
                             Section::make()
                                 ->schema([
-                                    TitleWithSlugInput::make(
-                                        fieldTitle: 'title',
-                                        fieldSlug: 'slug',
-                                    ),
-                                    FileUpload::make('featured_image_url')
+                                    MediaPicker::make('featured_image_url')
                                         ->label(__('core::core.featured_image_url')),
+                                    TextInput::make('title')
+                                        ->live(onBlur: true)
+                                        ->label(__('core::core.title'))
+                                        ->required()
+                                        ->afterStateHydrated(function (TextInput $component) {
+                                            $lang = request()->get('lang');
+                                            if ($lang && $component->getRecord()->hasTranslation($lang)) {
+                                                $component->state($component->getRecord()->translateOrNew($lang)->title);
+                                            } else {
+                                                $component->state($component->getRecord()->title ?? '');
+                                            }
+                                        })
+                                        ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state)))
+                                        ->dehydrateStateUsing(function (string $state, $record, $livewire) {
+                                            if (! $livewire->selectedLang) {
+                                                $record->title = $state;
+
+                                                return $state;
+                                            }
+
+                                            $record->translateOrNew($livewire->selectedLang)->title = $state;
+
+                                            return $state;
+                                        }),
+                                    TextInput::make('slug')
+                                        ->label(__('core::core.slug'))
+                                        ->required()
+                                        ->afterStateHydrated(function (TextInput $component) {
+                                            $lang = request()->get('lang');
+                                            if ($lang && $component->getRecord()->hasTranslation($lang)) {
+                                                $component->state($component->getRecord()->translateOrNew($lang)->slug);
+                                            } else {
+                                                $component->state($component->getRecord()->slug ?? '');
+                                            }
+                                        })
+                                        ->dehydrateStateUsing(function (string $state, $record, $livewire) {
+                                            if (! $livewire->selectedLang) {
+                                                $record->slug = $state;
+
+                                                return $state;
+                                            }
+
+                                            $record->translateOrNew($livewire->selectedLang)->slug = $state;
+
+                                            return $state;
+                                        }),
                                     MarkdownEditor::make('content')
-                                        ->label(__('core::core.content')),
+                                        ->label(__('core::core.content'))
+                                        ->required()
+                                        ->afterStateHydrated(function (MarkdownEditor $component) {
+                                            $lang = request()->get('lang');
+                                            if ($lang && $component->getRecord()->hasTranslation($lang)) {
+                                                $component->state($component->getRecord()->translateOrNew($lang)->content);
+                                            } else {
+                                                $component->state($component->getRecord()->content ?? '');
+                                            }
+                                        })
+                                        ->dehydrateStateUsing(function (string $state, $record, $livewire) {
+                                            if (! $livewire->selectedLang) {
+                                                $record->content = $state;
+
+                                                return $state;
+                                            }
+
+                                            $record->translateOrNew($livewire->selectedLang)->content = $state;
+
+                                            return $state;
+                                        }),
+
                                 ]),
                         ])
                         ->columnSpan(['lg' => 2]),
@@ -165,29 +229,51 @@ class TagResource extends Resource
 
         return $table
             ->columns([
-                ImageColumn::make('featured_image_url')
+                CustomImageColumn::make('featured_image_url')
                     ->label(__('core::core.image'))
                     ->defaultImageUrl(url('/moox/core/assets/noimage.svg'))
-                    ->alignment('center')
-                    ->square()
-                    ->toggleable(),
+                    ->alignment('center'),
                 TextColumn::make('title')
                     ->label(__('core::core.title'))
                     ->searchable()
                     ->limit(30)
                     ->toggleable()
-                    ->sortable(),
+                    ->sortable()
+                    ->state(function ($record) {
+                        $lang = request()->get('lang');
+                        if ($lang && $record->hasTranslation($lang)) {
+                            return $record->translate($lang)->title;
+                        }
+
+                        return $record->title;
+                    }),
                 TextColumn::make('slug')
                     ->label(__('core::core.slug'))
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: false)
+                    ->sortable()
+                    ->state(function ($record) {
+                        $lang = request()->get('lang');
+                        if ($lang && $record->hasTranslation($lang)) {
+                            return $record->translate($lang)->title;
+                        }
+
+                        return $record->title;
+                    }),
                 TextColumn::make('content')
                     ->label(__('core::core.content'))
                     ->sortable()
                     ->limit(30)
                     ->searchable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->state(function ($record) {
+                        $lang = request()->get('lang');
+                        if ($lang && $record->hasTranslation($lang)) {
+                            return $record->translate($lang)->title;
+                        }
+
+                        return $record->title;
+                    }),
                 TextColumn::make('count')
                     ->label(__('core::core.count'))
                     ->sortable()
@@ -200,12 +286,20 @@ class TagResource extends Resource
                     ->label(__('tag::translations.color'))
                     ->sortable()
                     ->toggleable(),
-
             ])
-            ->defaultSort('slug', 'desc')
             ->actions([
-                ViewAction::make(),
-                EditAction::make()->hidden(fn (): bool => in_array(static::getCurrentTab(), ['trash', 'deleted'])),
+                ViewAction::make()->url(
+                    fn ($record) => request()->has('lang')
+                    ? route('filament.admin.resources.tags.view', ['record' => $record, 'lang' => request()->get('lang')])
+                    : route('filament.admin.resources.tags.view', $record)
+                ),
+                EditAction::make()
+                    ->url(
+                        fn ($record) => request()->has('lang')
+                        ? route('filament.admin.resources.tags.edit', ['record' => $record, 'lang' => request()->get('lang')])
+                        : route('filament.admin.resources.tags.edit', $record)
+                    )
+                    ->hidden(fn (): bool => in_array(static::getCurrentTab(), ['trash', 'deleted'])),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()->hidden(fn (): bool => in_array($currentTab, ['trash', 'deleted'])),
