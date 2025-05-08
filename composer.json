@@ -18,7 +18,8 @@
     ],
     "require": {
         "moox/core": "^3.0.3",
-        "moox/localization": "*"
+        "moox/localization": "*",
+        "moox/media": "*"
     },
     "autoload": {
         "psr-4": {
