@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace Moox\Tag\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Actions;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Set;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -28,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Unique;
+use Moox\Core\Entities\Items\Draft\BaseDraftResource;
 use Moox\Core\Traits\Tabs\HasResourceTabs;
 use Moox\Localization\Filament\Tables\Columns\TranslationColumn;
 use Moox\Localization\Models\Localization;
@@ -40,7 +38,7 @@ use Moox\Tag\Resources\TagResource\Pages\ListTags;
 use Moox\Tag\Resources\TagResource\Pages\ViewTag;
 use Override;
 
-class TagResource extends Resource
+class TagResource extends BaseDraftResource
 {
     use HasResourceTabs;
 
@@ -54,7 +52,7 @@ class TagResource extends Resource
         return parent::getEloquentQuery()->withoutGlobalScopes();
     }
 
-    protected static string | \BackedEnum | null $navigationIcon = 'gmdi-label';
+    protected static string|\BackedEnum|null $navigationIcon = 'gmdi-label';
 
     protected static ?string $authorModel = null;
 
@@ -63,100 +61,48 @@ class TagResource extends Resource
     {
         static::initUserModel();
 
-        return $schema->components([
-            Grid::make(2)
-                ->schema([
-                    Grid::make()
-                        ->schema([
-                            Section::make()
-                                ->schema([
-                                    MediaPicker::make('featured_image_url')
-                                        ->label(__('core::core.featured_image_url'))
-                                        ->multiple(),
-                                    Tabs::make('Translations')
-                                        ->tabs(self::generateTranslationTabs()),
-                                ]),
-                        ])
-                        ->columnSpan(['lg' => 2]),
-                    Grid::make()
-                        ->schema([
-                            Section::make()
-                                ->schema([
-                                    Actions::make([
-                                        Action::make('restore')
-                                            ->label(__('core::core.restore'))
-                                            ->color('success')
-                                            ->button()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->action(fn ($record) => $record->restore())
-                                            ->visible(fn ($livewire, $record): bool => $record && $record->trashed() && $livewire instanceof ViewTag),
-                                        Action::make('save')
-                                            ->label(__('core::core.save'))
-                                            ->color('primary')
-                                            ->button()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->action(function ($livewire): void {
-                                                $livewire instanceof CreateTag ? $livewire->create() : $livewire->save();
-                                            })
-                                            ->visible(fn ($livewire): bool => $livewire instanceof CreateTag || $livewire instanceof EditTag),
-                                        Action::make('saveAndCreateAnother')
-                                            ->label(__('core::core.save_and_create_another'))
-                                            ->color('secondary')
-                                            ->button()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->action(function ($livewire): void {
-                                                $livewire->saveAndCreateAnother();
-                                            })
-                                            ->visible(fn ($livewire): bool => $livewire instanceof CreateTag),
-                                        Action::make('cancel')
-                                            ->label(__('core::core.cancel'))
-                                            ->color('secondary')
-                                            ->outlined()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->url(fn (): string => static::getUrl('index'))
-                                            ->visible(fn ($livewire): bool => $livewire instanceof CreateTag),
-                                        Action::make('edit')
-                                            ->label(__('core::core.edit'))
-                                            ->color('primary')
-                                            ->button()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->url(fn ($record): string => static::getUrl('edit', ['record' => $record, 'lang' => request()->get('lang')]))
-                                            ->visible(fn ($livewire, $record): bool => $livewire instanceof ViewTag && ! $record->trashed()),
-                                        Action::make('restore')
-                                            ->label(__('core::core.restore'))
-                                            ->color('success')
-                                            ->button()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->action(fn ($record) => $record->restore())
-                                            ->visible(fn ($livewire, $record): bool => $record && $record->trashed() && $livewire instanceof EditTag),
-                                        Action::make('delete')
-                                            ->label(__('core::core.delete'))
-                                            ->color('danger')
-                                            ->link()
-                                            ->extraAttributes(['class' => 'w-full'])
-                                            ->action(fn ($record) => $record->delete())
-                                            ->visible(fn ($livewire, $record): bool => $record && ! $record->trashed() && $livewire instanceof EditTag),
+        return $schema
+            ->schema([
+                Grid::make()
+                    ->schema([
+                        Section::make()
+                            ->schema([
+                                MediaPicker::make('featured_image_url')
+                                    ->label(__('core::core.featured_image_url')),
+                                Tabs::make('Translations')
+                                    ->tabs(self::generateTranslationTabs()),
+                            ])
+                            ->columnSpan(2),
+                        Grid::make()
+                            ->schema([
+                                Section::make()
+                                    ->schema([
+                                        static::getFormActions(),
                                     ]),
-                                    ColorPicker::make('color'),
-                                    TextInput::make('weight'),
-                                    TextInput::make('count')
-                                        ->disabled()
-                                        ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
-                                    DateTimePicker::make('created_at')
-                                        ->disabled()
-                                        ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
-                                    DateTimePicker::make('updated_at')
-                                        ->disabled()
-                                        ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
-                                    DateTimePicker::make('deleted_at')
-                                        ->disabled()
-                                        ->visible(fn ($livewire, $record): bool => $record && $record->trashed() && $livewire instanceof ViewTag),
-                                ]),
-                        ])
-                        ->columnSpan(['lg' => 1]),
-                ])
-                ->columns(['lg' => 3]),
-        ]);
+                                Section::make('')
+                                    ->schema([
+                                        ColorPicker::make('color'),
+                                        TextInput::make('weight'),
+                                        TextInput::make('count')
+                                            ->disabled()
+                                            ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
+                                        DateTimePicker::make('created_at')
+                                            ->disabled()
+                                            ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
+                                        DateTimePicker::make('updated_at')
+                                            ->disabled()
+                                            ->visible(fn ($livewire, $record): bool => ($record && $livewire instanceof EditTag) || ($record && $livewire instanceof ViewTag)),
+                                        DateTimePicker::make('deleted_at')
+                                            ->disabled()
+                                            ->visible(fn ($livewire, $record): bool => $record && $record->trashed() && $livewire instanceof ViewTag),
+                                    ]),
+                            ])
+                            ->columns(1)
+                            ->columnSpan(1),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+            ]);
     }
 
     #[Override]
