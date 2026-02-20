@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "moox/core": "5.0.1",
+        "moox/core": "5.0.11",
         "moox/localization": "*",
         "moox/media": "*"
     },
@@ -32,11 +32,14 @@
             "providers": [
                 "Moox\\Tag\\TagServiceProvider"
             ]
+        },
+        "moox": {
+            "stability": "stable"
         }
     },
     "prefer-stable": true,
     "require-dev": {
-        "moox/devtools": "5.0.1"
+        "moox/devtools": "5.0.11"
     },
     "config": {
         "allow-plugins": {
